@@ -18,20 +18,29 @@
   <body>
 
   <?php
-  if(isset($_POST['submit_register'])){
+
+if(isset($_POST['submit_register'])){
     $name = $_POST['name'];
     $email = $_POST['email'];
     $cellphone = $_POST['mobile_number'];
     $password = $_POST['password'];
 
+    // Validação dos dados
+    if(empty($name) || empty($email) || empty($cellphone) || empty($password)) {
+        // Um ou mais campos estão vazios
+        die("Por favor, preencha todos os campos.");
+    }
+
     $result = mysqli_query($mysqli, "INSERT INTO users(user_name,email,cellphone,user_password) VALUES
     ('$name','$email','$cellphone','$password')");
 
     if($result){
-      header("Location: aprovado.html");
+        header("Location: assets/pages/smsverify.php");
     }
-  }
-  ?>
+}
+
+?>
+
 
     <div class="container">
       <div class="forms-container">
@@ -60,7 +69,7 @@
 
             <p class="checkNumber">Invalid mobile number*</p>
             <div class="input-field">
-              <input type="text" name="mobile_number" class="mobile-number" id="phone" minlength="14" maxlength="15"/>
+              <input type="text" name="mobile_number" class="mobile-number" id="phone" minlength="9" onkeypress="return isNumberKey(event)"/>
             </div>
 
             <p class="invalidEmail">Invalid E-mail*</p>
@@ -158,6 +167,13 @@
           }
         })
         //Validador Nome
+
+        function isNumberKey(evt){
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 43)
+            return false;
+        return true;
+        }
 
         // ALTERAR FORMULAS
         const loginBtn = document.querySelector("#sign-in-btn");
@@ -313,10 +329,17 @@
         }
         //Validador ConfirmaSENHA
 
-        const input = document.querySelector("#phone");
-        window.intlTelInput(input, {
-          utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
+        var input = document.querySelector("#phone");
+        var iti = window.intlTelInput(input, {
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
         });
+
+        // Quando o formulário for enviado, atualize o número de telefone para o formato completo
+        $('#registrationForm').on('submit', function() {
+            var fullNumber = iti.getNumber();
+            $('#phone').val(fullNumber);
+        });
+
 
   
         if((validName && validNumber && validEmail && validConfirmEmail && validPassword && validConfirmPassword) == true){
